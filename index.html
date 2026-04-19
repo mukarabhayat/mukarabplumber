@@ -934,9 +934,9 @@
   }, { threshold: 0.12 });
   document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => observer.observe(el));
 
-  // Counter animation
-  function animateCounter(el, target) {
-    const suffix = el.textContent.replace(/[0-9]/g, '');
+  // Counter animation - skip elements containing / like 24/7
+  function animateCounter(el, target, original) {
+    const suffix = original.replace(/^[0-9]+/, '');
     let current = 0;
     const step = target / 60;
     const timer = setInterval(() => {
@@ -950,8 +950,11 @@
     entries.forEach(e => {
       if(e.isIntersecting) {
         const txt = e.target.textContent;
-        const num = parseInt(txt.replace(/[^0-9]/g,''));
-        if(!isNaN(num) && num > 0) animateCounter(e.target, num);
+        // Skip if text contains / (like 24/7)
+        if (!txt.includes('/')) {
+          const num = parseInt(txt.replace(/[^0-9]/g,''));
+          if(!isNaN(num) && num > 0) animateCounter(e.target, num, txt);
+        }
         statObserver.unobserve(e.target);
       }
     });
